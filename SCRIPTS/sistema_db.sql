@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS sistema_db.usuarios (
 INSERT INTO sistema_db.usuarios (nombre, correo, contrasena, idRol) 
 VALUES 
 ("Usuario 1", "user1@mail.com", "user123", 1),
-("Usuario 2", "user2@mail.com", "user123", 1)
+("Usuario 2", "user2@mail.com", "user123", 1);
 
 -- tabla para los productos
 
@@ -46,9 +46,29 @@ CREATE TABLE IF NOT EXISTS sistema_db.historial (
     idProducto INT(6),
     tipo VARCHAR(50), -- esta puede ser 'entrada' 'salida'
     idUsuario INT(6),
-    created_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (idUsuario) REFERENCES usuarios (idUsuario)
     ON UPDATE CASCADE ON DELETE RESTRICT,
     FOREIGN KEY (idProducto) REFERENCES productos (idProducto)
     ON UPDATE CASCADE ON DELETE RESTRICT
 );
+
+-- trigger para historial
+
+DELIMITER //
+
+CREATE TRIGGER sistema_db.trr_monitor_productos
+AFTER UPDATE ON productos
+FOR EACH ROW
+BEGIN
+    IF NEW.cantidad > OLD.cantidad THEN
+        INSERT INTO sistema_db.historial (idProducto, tipo, idUsuario)
+        VALUES (NEW.idProducto, 'entrada', @current_app_user_id);
+    
+    ELSEIF NEW.cantidad < OLD.cantidad THEN
+        INSERT INTO sistema_db.historial (idProducto, tipo, idUsuario)
+        VALUES (NEW.idProducto, 'salida', @current_app_user_id);
+    END IF;
+END //
+
+DELIMITER ;

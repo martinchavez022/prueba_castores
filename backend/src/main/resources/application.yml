@@ -19,5 +19,12 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
 
+  logging:
+    file:
+      name: /var/log/mi-app/app.log
+    pattern:
+      file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+      console: "%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n"
+
 server:
   port: 8080

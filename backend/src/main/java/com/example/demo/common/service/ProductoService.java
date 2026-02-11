@@ -35,7 +35,7 @@ public class ProductoService {
      * @throws ResourceNotFoundException Si no se encuentra el producto
      * @throws InvalidQuantityException Si la cantidad es menor a la actual
      */
-    public Producto incrementarProducto(Long productoId, int nuevaCantida) {
+    public Producto actualizarCantidadProducto(Long productoId, int nuevaCantida) {
         Optional<Producto> productoOptional = productoRepository.findById(productoId);
 
         if (productoOptional.isEmpty()) {
@@ -48,6 +48,28 @@ public class ProductoService {
         }
 
         producto.setCantidad(nuevaCantida);
+        return productoRepository.save(producto);
+    }
+
+    /**
+     * Este servicio actualiza el estatus del producto,
+     * si esta activo lo desactiva, si esta desactivado lo activa
+     * @param productoId Identificador del producto
+     * @return Producto actualizado
+     * @throws ResourceNotFoundException
+     */
+    public Producto actualizarEstatus(Long productoId) {
+        Optional<Producto> productoOptional = productoRepository.findById(productoId);
+        if (productoOptional.isEmpty()) {
+            throw new ResourceNotFoundException("Producto no encontrado");
+        }
+
+        Producto producto = productoOptional.get();
+        if (producto.getEstatus() == 1) {
+            producto.setEstatus(0);
+        } else {
+            producto.setEstatus(1);
+        }
         return productoRepository.save(producto);
     }
 }
