@@ -1,0 +1,53 @@
+package com.example.demo.common.service;
+
+import com.example.demo.common.entity.Producto;
+import com.example.demo.common.repository.ProductoRepository;
+import com.example.demo.common.exception.InvalidQuantityException;
+import com.example.demo.common.exception.ResourceNotFoundException;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Service
+public class ProductoService {
+    private final ProductoRepository productoRepository;
+
+    public ProductoService(ProductoRepository productoRepository) {
+        this.productoRepository = productoRepository;
+    }
+
+    /**
+     * guarda un nuevo producto en la base de datos
+     * @param producto
+     * @return
+     */
+    public Producto saveProducto(Producto producto) {
+        return productoRepository.save(producto);
+    }
+
+    /**
+     * Modifica la cantidad de producto de un registro pero ademas verifica que
+     * la cantidad ingresada no sea menor a la existente.
+     *
+     * @param productoId Identificador del producto a actualizar
+     * @param nuevaCantida Nueva cantidad
+     * @return Producto actualizado
+     * @throws ResourceNotFoundException Si no se encuentra el producto
+     * @throws InvalidQuantityException Si la cantidad es menor a la actual
+     */
+    public Producto incrementarProducto(Long productoId, int nuevaCantida) {
+        Optional<Producto> productoOptional = productoRepository.findById(productoId);
+
+        if (productoOptional.isEmpty()) {
+            throw new ResourceNotFoundException("Producto no encontrado con ID: " + productoId);
+        }
+
+        Producto producto = productoOptional.get();
+        if (nuevaCantida < producto.getCantidad()) {
+            throw new InvalidQuantityException("La nueva cantidad no puede ser menor a la cantidad actual");
+        }
+
+        producto.setCantidad(nuevaCantida);
+        return productoRepository.save(producto);
+    }
+}
