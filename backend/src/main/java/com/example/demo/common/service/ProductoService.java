@@ -1,31 +1,44 @@
 package com.example.demo.common.service;
 
 import com.example.demo.common.entity.Producto;
+import com.example.demo.common.entity.Usuario;
+import com.example.demo.common.exception.UserCanNotAccess;
 import com.example.demo.common.repository.ProductoRepository;
 import com.example.demo.common.exception.InvalidQuantityException;
 import com.example.demo.common.exception.ResourceNotFoundException;
+import com.example.demo.usuario.UsuarioRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ProductoService {
     private final ProductoRepository productoRepository;
     private final EntityManager entityManager;
+    private final UsuarioRepository usuarioRepository;
 
-    public ProductoService(ProductoRepository productoRepository, EntityManager entityManager) {
+    public ProductoService(ProductoRepository productoRepository, EntityManager entityManager, UsuarioRepository usuarioRepository) {
         this.productoRepository = productoRepository;
         this.entityManager = entityManager;
+        this.usuarioRepository = usuarioRepository;
     }
 
     /**
      * guarda un nuevo producto en la base de datos
      * @param producto
+     * @param id_usuario
      * @return
      */
-    public Producto saveProducto(Producto producto) {
+    public Producto saveProducto(Producto producto, int id_usuario) {
+        Optional<Usuario> usuarioOptional = usuarioRepository.findById(id_usuario);
+        Usuario usuario = usuarioOptional.get();
+
+        if (!usuario.getRol().getNombre().equals("Almacenista")) {
+            throw new UserCanNotAccess("EL usuario no tiene permiso!");
+        }
         return productoRepository.save(producto);
     }
 
@@ -80,5 +93,13 @@ public class ProductoService {
             producto.setEstatus(1);
         }
         return productoRepository.save(producto);
+    }
+
+    /**
+     * Obtener los productos
+     * @return List<Producto>
+     */
+    public List<Producto> obtenerProductos() {
+        return productoRepository.findAll();
     }
 }
