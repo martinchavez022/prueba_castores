@@ -27,12 +27,14 @@ public class ProductoController {
                 HttpStatus.CREATED);
     }
     
-    @PutMapping("/{id}/cantidad")
+    @PutMapping("/{id}/{id_usuario}/cantidad")
     public ResponseEntity<ApiResponse<Producto>> actualizarProducto(
             @PathVariable Long id,
-            @RequestBody int cantidad) {
+            @PathVariable int id_usuario,
+            @RequestBody int cantidad)
+    {
         try {
-            Producto updateProducto = productoService.actualizarCantidadProducto(id, cantidad);
+            Producto updateProducto = productoService.actualizarCantidadProducto(id, cantidad, id_usuario);
             return new ResponseEntity<>(ApiResponse.ok("Cantidad de producto actualizada!", updateProducto), HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(ApiResponse.error(e.getMessage()), HttpStatus.NOT_FOUND);

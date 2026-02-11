@@ -4,6 +4,8 @@ import com.example.demo.common.entity.Producto;
 import com.example.demo.common.repository.ProductoRepository;
 import com.example.demo.common.exception.InvalidQuantityException;
 import com.example.demo.common.exception.ResourceNotFoundException;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -11,9 +13,11 @@ import java.util.Optional;
 @Service
 public class ProductoService {
     private final ProductoRepository productoRepository;
+    private final EntityManager entityManager;
 
-    public ProductoService(ProductoRepository productoRepository) {
+    public ProductoService(ProductoRepository productoRepository, EntityManager entityManager) {
         this.productoRepository = productoRepository;
+        this.entityManager = entityManager;
     }
 
     /**
@@ -31,11 +35,13 @@ public class ProductoService {
      *
      * @param productoId Identificador del producto a actualizar
      * @param nuevaCantida Nueva cantidad
+     * @param userId Identificador del usuario que hace la peticion
      * @return Producto actualizado
      * @throws ResourceNotFoundException Si no se encuentra el producto
      * @throws InvalidQuantityException Si la cantidad es menor a la actual
      */
-    public Producto actualizarCantidadProducto(Long productoId, int nuevaCantida) {
+    @Transactional
+    public Producto actualizarCantidadProducto(Long productoId, int nuevaCantida, int userId) {
         Optional<Producto> productoOptional = productoRepository.findById(productoId);
 
         if (productoOptional.isEmpty()) {
@@ -47,6 +53,9 @@ public class ProductoService {
             throw new InvalidQuantityException("La nueva cantidad no puede ser menor a la cantidad actual");
         }
 
+        entityManager.createNativeQuery("SET @current_app_user_id = :userId")
+                     .setParameter("userId", userId)
+                     .executeUpdate();
         producto.setCantidad(nuevaCantida);
         return productoRepository.save(producto);
     }
