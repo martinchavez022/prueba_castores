@@ -23,7 +23,11 @@ public class ProductoController {
         this.productoService = productoService;
     }
 
-    // Crear un producto
+    /**
+     * CREAR UN PRODUCTO
+     *
+     * Administrador: X
+     */
     @PostMapping("/{id_usuario}")
     public ResponseEntity<ApiResponse<Producto>> createProducto(
             @RequestBody Producto producto,
@@ -38,7 +42,11 @@ public class ProductoController {
         }
     }
 
-    // Actualizar `cantidad` de un producto
+    /**
+     * ACTUALIZAR CANTIDAD DE UN PRODUCTO (solo sumar, no resta)
+     *
+     * Administrador: X
+     */
     @PutMapping("/{id}/{id_usuario}/cantidad")
     public ResponseEntity<ApiResponse<Producto>> actualizarProducto(
             @PathVariable Long id,
@@ -55,7 +63,11 @@ public class ProductoController {
         }
     }
 
-    // Actualizar `estado` de un producto
+    /**
+     * ACTUALIZAR ESTADO DE PRODUCTO
+     *
+     * Administrador: X
+     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<Producto>> actualizarEstadoProducto (
             @PathVariable Long id)
@@ -68,7 +80,12 @@ public class ProductoController {
         }
     }
 
-    // Obtener lista de productos
+    /**
+     * VER LISTA DE PRODUCTOS
+     *
+     * Administrador: X
+     * Almacenista: X
+     */
     @GetMapping("/obtener")
     public ResponseEntity<ApiResponse<List<Producto>>> obtenerProductos () {
         try {
@@ -78,5 +95,27 @@ public class ProductoController {
             return new ResponseEntity<>(ApiResponse.error(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
-    
+
+    /**
+     * RESTAR INVENTARIO DEL ALMACEN
+     *
+     * Almacenista: X
+     */
+    @PutMapping("/restar/{id}/{id_usuario}")
+    public ResponseEntity<ApiResponse<Producto>> restarProducto(
+            @PathVariable Long id,
+            @PathVariable int id_usuario,
+            @RequestBody int cantidad)
+    {
+        try {
+            Producto updateProducto = productoService.restarProducto(id, cantidad, id_usuario);
+            return new ResponseEntity<>(ApiResponse.ok("Cantidad de producto actualizada!", updateProducto), HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()), HttpStatus.NOT_FOUND);
+        } catch (InvalidQuantityException e) {
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()), HttpStatus.BAD_REQUEST);
+        } catch (UserCanNotAccess e) {
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
 }

@@ -55,6 +55,13 @@ public class ProductoService {
      */
     @Transactional
     public Producto actualizarCantidadProducto(Long productoId, int nuevaCantida, int userId) {
+        Optional<Usuario> usuarioOptional = usuarioRepository.findById(userId);
+
+        Usuario usuario = usuarioOptional.get();
+        if (!usuario.getRol().getNombre().equals("Almacenista")) {
+            throw new UserCanNotAccess("EL usuario no tiene permiso!");
+        }
+
         Optional<Producto> productoOptional = productoRepository.findById(productoId);
 
         if (productoOptional.isEmpty()) {
@@ -101,5 +108,40 @@ public class ProductoService {
      */
     public List<Producto> obtenerProductos() {
         return productoRepository.findAll();
+    }
+
+    /**
+     * Restar producto de la base de datos
+     * @param productoId Producto al que se restara
+     * @param cantidadRestada Cantidad de producto a restar
+     * @param userId Identificador de usuario
+     * @return Producto
+     */
+    @Transactional
+    public Producto restarProducto(Long productoId, int cantidadRestada, int userId) {
+        Optional<Usuario> usuarioOptional = usuarioRepository.findById(userId);
+
+        Usuario usuario = usuarioOptional.get();
+        if (!usuario.getRol().getNombre().equals("Administrador")) {
+            throw new UserCanNotAccess("El usuario no tiene permiso!");
+        }
+
+        Optional<Producto> productoOptional = productoRepository.findById(productoId);
+
+        if (productoOptional.isEmpty()) {
+            throw new ResourceNotFoundException("Producto no encontrado con ID: " + productoId);
+        }
+
+        Producto producto = productoOptional.get();
+
+        if (cantidadRestada > producto.getCantidad()) {
+            throw new InvalidQuantityException("No hay suficiente existencia!");
+        }
+
+        entityManager.createNativeQuery("SET @current_app_user_id = :userId")
+                .setParameter("userId", userId)
+                .executeUpdate();
+        producto.setCantidad(producto.getCantidad() - cantidadRestada);
+        return productoRepository.save(producto);
     }
 }
