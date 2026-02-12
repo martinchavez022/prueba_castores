@@ -36,7 +36,7 @@ public class ProductoService {
         Optional<Usuario> usuarioOptional = usuarioRepository.findById(id_usuario);
         Usuario usuario = usuarioOptional.get();
 
-        if (!usuario.getRol().getNombre().equals("Almacenista")) {
+        if (usuario.getRol().getNombre().equals("Almacenista")) {
             throw new UserCanNotAccess("EL usuario no tiene permiso!");
         }
         return productoRepository.save(producto);
@@ -58,7 +58,7 @@ public class ProductoService {
         Optional<Usuario> usuarioOptional = usuarioRepository.findById(userId);
 
         Usuario usuario = usuarioOptional.get();
-        if (!usuario.getRol().getNombre().equals("Almacenista")) {
+        if (usuario.getRol().getNombre().equals("Almacenista")) {
             throw new UserCanNotAccess("EL usuario no tiene permiso!");
         }
 
@@ -67,16 +67,11 @@ public class ProductoService {
         if (productoOptional.isEmpty()) {
             throw new ResourceNotFoundException("Producto no encontrado con ID: " + productoId);
         }
-
         Producto producto = productoOptional.get();
-        if (nuevaCantida < producto.getCantidad()) {
-            throw new InvalidQuantityException("La nueva cantidad no puede ser menor a la cantidad actual");
-        }
-
         entityManager.createNativeQuery("SET @current_app_user_id = :userId")
                      .setParameter("userId", userId)
                      .executeUpdate();
-        producto.setCantidad(nuevaCantida);
+        producto.setCantidad(producto.getCantidad() + nuevaCantida);
         return productoRepository.save(producto);
     }
 
@@ -84,10 +79,18 @@ public class ProductoService {
      * Este servicio actualiza el estatus del producto,
      * si esta activo lo desactiva, si esta desactivado lo activa
      * @param productoId Identificador del producto
+     * @param usuarioId Identificador del producto
      * @return Producto actualizado
      * @throws ResourceNotFoundException
      */
-    public Producto actualizarEstatus(Long productoId) {
+    public Producto actualizarEstatus(Long productoId, int usuarioId) {
+
+        Optional<Usuario> usuarioOptional = usuarioRepository.findById(usuarioId);
+        Usuario usuario = usuarioOptional.get();
+        if (usuario.getRol().getNombre().equals("Almacenista")) {
+            throw new UserCanNotAccess("EL usuario no tiene permiso!");
+        }
+
         Optional<Producto> productoOptional = productoRepository.findById(productoId);
         if (productoOptional.isEmpty()) {
             throw new ResourceNotFoundException("Producto no encontrado");

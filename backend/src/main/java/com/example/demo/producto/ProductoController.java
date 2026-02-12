@@ -65,15 +65,15 @@ public class ProductoController {
 
     /**
      * ACTUALIZAR ESTADO DE PRODUCTO
-     *
-     * Administrador: X
      */
-    @GetMapping("/{id}")
+    @GetMapping("/{id}/{id_usuario}")
     public ResponseEntity<ApiResponse<Producto>> actualizarEstadoProducto (
-            @PathVariable Long id)
+            @PathVariable Long id,
+            @PathVariable int id_usuario
+    )
     {
         try {
-            Producto updateProducto = productoService.actualizarEstatus(id);
+            Producto updateProducto = productoService.actualizarEstatus(id,id_usuario);
             return new ResponseEntity<>(ApiResponse.ok("Estatus actualizado", updateProducto), HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(ApiResponse.error(e.getMessage()), HttpStatus.NOT_FOUND);
