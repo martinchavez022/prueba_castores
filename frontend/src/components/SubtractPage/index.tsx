@@ -94,14 +94,14 @@ const SubtractPage = () => {
 
     return (
         <div className="subtract-page">
-            <h1>Subtract Products Module</h1>
+            <h1>Restar Productos</h1>
             <table className="subtract-table">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Current Quantity</th>
-                        <th>Quantity to Subtract</th>
-                        <th>Action</th>
+                        <th>Nombre</th>
+                        <th>Cantidad Actual</th>
+                        <th>Cantidad A Restar</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -119,7 +119,7 @@ const SubtractPage = () => {
                                 />
                             </td>
                             <td>
-                                <button onClick={() => handleSubtract(product)}>Subtract</button>
+                                <button onClick={() => handleSubtract(product)}>Restar</button>
                             </td>
                         </tr>
                     ))}

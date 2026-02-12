@@ -68,7 +68,6 @@ const HistoryPage = () => {
                     <thead>
                         <tr>
                             <th>Producto</th>
-                            <th>Cantidad</th>
                             <th>Tipo</th>
                             <th>Usuario</th>
                             <th>Fecha y Hora</th>
@@ -78,7 +77,6 @@ const HistoryPage = () => {
                         {movements.map(movement => (
                             <tr key={movement.idHistorial}>
                                 <td>{movement.producto.nombre}</td>
-                                <td>{movement.cantidad}</td>
                                 <td>{movement.tipo}</td>
                                 <td>{movement.usuario.nombre}</td>
                                 <td>{new Date(movement.createdAt).toLocaleString()}</td>

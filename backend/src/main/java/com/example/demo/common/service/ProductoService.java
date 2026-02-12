@@ -84,11 +84,11 @@ public class ProductoService {
      * @throws ResourceNotFoundException
      */
     public Producto actualizarEstatus(Long productoId, int usuarioId) {
-
         Optional<Usuario> usuarioOptional = usuarioRepository.findById(usuarioId);
+
         Usuario usuario = usuarioOptional.get();
         if (usuario.getRol().getNombre().equals("Almacenista")) {
-            throw new UserCanNotAccess("EL usuario no tiene permiso!");
+            throw new UserCanNotAccess("El usuario no tiene permiso!");
         }
 
         Optional<Producto> productoOptional = productoRepository.findById(productoId);
@@ -122,13 +122,6 @@ public class ProductoService {
      */
     @Transactional
     public Producto restarProducto(Long productoId, int cantidadRestada, int userId) {
-        Optional<Usuario> usuarioOptional = usuarioRepository.findById(userId);
-
-        Usuario usuario = usuarioOptional.get();
-        if (!usuario.getRol().getNombre().equals("Administrador")) {
-            throw new UserCanNotAccess("El usuario no tiene permiso!");
-        }
-
         Optional<Producto> productoOptional = productoRepository.findById(productoId);
 
         if (productoOptional.isEmpty()) {
